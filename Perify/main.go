@@ -15,7 +15,7 @@ import (
 
 // Product структура для продукта
 type Product struct {
-	ID          string `json:"id,omitempty" bson:"_id,omitempty"`
+	ID          string `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name        string `json:"name" bson:"name"`
 	Price       int    `json:"price" bson:"price"`
 	Description string `json:"description" bson:"description"`
@@ -65,7 +65,7 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 
 // Получение всех продуктов (GET)
 func getProducts(w http.ResponseWriter, r *http.Request) {
-	var products []Product
+	var products []bson.M
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
 		http.Error(w, "Ошибка получения данных", http.StatusInternalServerError)
@@ -73,11 +73,31 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	defer cursor.Close(context.Background())
 	for cursor.Next(context.Background()) {
-		var product Product
+		var product bson.M
 		cursor.Decode(&product)
 		products = append(products, product)
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(products)
+}
+
+func getProductByID(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		http.Error(w, "Некорректный ID", http.StatusBadRequest)
+		return
+	}
+
+	var product Product
+	err = collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&product)
+	if err != nil {
+		http.Error(w, "Продукт не найден", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(product)
 }
 
 // Обновление продукта (PUT)
@@ -125,6 +145,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/products", getProducts)
+	mux.HandleFunc("/products/find", getProductByID)
 	mux.HandleFunc("/products/create", createProduct)
 	mux.HandleFunc("/products/update", updateProduct)
 	mux.HandleFunc("/products/delete", deleteProduct)

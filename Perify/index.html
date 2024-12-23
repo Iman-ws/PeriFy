@@ -14,6 +14,11 @@
 <input id="description" placeholder="Описание продукта" />
 <button onclick="addProduct()">Добавить</button>
 
+<h2>Поиск продукта по ID</h2>
+<input id="searchId" placeholder="ID продукта" />
+<button onclick="findProduct()">Найти</button>
+<div id="foundProduct"></div>
+
 <!-- Список продуктов -->
 <h2>Список продуктов</h2>
 <button onclick="getProducts()">Показать продукты</button>
@@ -48,7 +53,7 @@
             .then(res => res.json())
             .then(data => {
               if (data.message) {
-                alert(data.message); // Показывает только текст сообщения
+                alert(data.message);
               } else {
                 alert("Ошибка: некорректный ответ от сервера");
               }
@@ -56,15 +61,40 @@
             .catch(err => console.error("Ошибка:", err));
   }
 
-
   function getProducts() {
     fetch("http://localhost:8080/products")
             .then(res => res.json())
             .then(data => {
               let html = "<ul>";
-              data.forEach(p => html += `<li>ID: ${p.id}, Название: ${p.name}, Цена: ${p.price}, Описание: ${p.description}</li>`);
+              data.forEach(p => html += `<li>ID: ${p._id}, Название: ${p.name}, Цена: ${p.price}, Описание: ${p.description}</li>`);
               html += "</ul>";
               document.getElementById("products").innerHTML = html;
+            });
+  }
+
+
+  function findProduct() {
+    const id = document.getElementById("searchId").value;
+
+    if (!id) {
+      alert("Введите ID продукта!");
+      return;
+    }
+
+    fetch(`http://localhost:8080/products/find?id=${id}`)
+            .then(res => {
+              if (!res.ok) {
+                throw new Error("Продукт не найден или некорректный ID");
+              }
+              return res.json();
+            })
+            .then(data => {
+              document.getElementById("foundProduct").innerHTML =
+                      `Найден продукт: <br>ID: ${data._id}<br>Название: ${data.name}<br>Цена: ${data.price}<br>Описание: ${data.description}`;
+            })
+            .catch(err => {
+              document.getElementById("foundProduct").innerHTML = "Ошибка: " + err.message;
+              console.error(err);
             });
   }
 
@@ -88,7 +118,6 @@
             .catch(err => console.error("Ошибка:", err));
   }
 
-
   function deleteProduct() {
     const id = document.getElementById("deleteId").value;
 
@@ -101,7 +130,6 @@
             })
             .catch(err => console.error("Ошибка:", err));
   }
-
 </script>
 </body>
 </html>
