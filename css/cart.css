@@ -1,0 +1,60 @@
+/* Корзина */
+.cart-page {
+    max-width: 1200px;
+    margin: 2em auto;
+    padding: 1em;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 1em;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.item-details h3 {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+.item-details .price {
+    font-size: 1.1em;
+    color: #1abc9c;
+}
+
+.checkout {
+    margin-top: 2em;
+    text-align: right;
+}
+
+.checkout .total {
+    font-size: 1.5em;
+    margin-bottom: 1em;
+}
+
+.checkout button {
+    padding: 1em 2em;
+    background: #1abc9c;
+    color: white;
+    border-radius: 5px;
+}
+
+.checkout button:hover {
+    background: #16a085;
+}

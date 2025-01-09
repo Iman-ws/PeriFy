@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Админ-панель</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .block { margin-bottom: 30px; border: 1px solid #ccc; padding: 15px; }
+        .block h2 { margin-top: 0; }
+        label { display: inline-block; width: 100px; }
+    </style>
+</head>
+<body>
+
+<h1>Админ-панель</h1>
+
+<div class="block">
+    <h2>Создать пользователя</h2>
+    <label>Имя:</label>
+    <input type="text" id="createUserName" /><br/><br/>
+    <label>Email:</label>
+    <input type="text" id="createUserEmail" /><br/><br/>
+    <button onclick="createUser()">Создать</button>
+    <p id="createUserResult"></p>
+</div>
+
+<div class="block">
+    <h2>Список пользователей</h2>
+    <button onclick="getUsers()">Обновить список</button>
+    <ul id="usersList"></ul>
+</div>
+
+<div class="block">
+    <h2>Отправить Email-рассылку</h2>
+    <form id="emailForm">
+        <label>Emails:</label>
+        <input type="text" name="emails" placeholder="user1@example.com,user2@example.com" style="width:300px" /><br/><br/>
+
+        <label>Тема:</label>
+        <input type="text" name="subject" style="width:300px" /><br/><br/>
+
+        <label>Сообщение:</label><br/>
+        <textarea name="message" rows="5" cols="50"></textarea><br/><br/>
+
+        <label>Файл:</label>
+        <input type="file" name="file" /><br/><br/>
+
+        <button type="button" onclick="sendBulkEmail()">Отправить</button>
+    </form>
+    <p id="bulkEmailResult"></p>
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8080";
+
+    async function createUser() {
+        const name = document.getElementById("createUserName").value.trim();
+        const email = document.getElementById("createUserEmail").value.trim();
+        const resultElem = document.getElementById("createUserResult");
+        resultElem.textContent = "";
+
+        if (!name || !email) {
+            resultElem.textContent = "Имя и Email обязательны!";
+            return;
+        }
+        try {
+            const res = await fetch(`${BASE_URL}/admin/users`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email })
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                resultElem.textContent = "Ошибка: " + errText;
+                return;
+            }
+            const data = await res.json();
+            resultElem.textContent = data.message;
+            getUsers();
+        } catch (error) {
+            resultElem.textContent = "Сетевая ошибка: " + error;
+        }
+    }
+
+    async function getUsers() {
+        const usersList = document.getElementById("usersList");
+        usersList.innerHTML = "";
+        try {
+            const res = await fetch(`${BASE_URL}/admin/users`);
+            if (!res.ok) {
+                const errText = await res.text();
+                usersList.innerHTML = `<li>Ошибка: ${errText}</li>`;
+                return;
+            }
+            const users = await res.json();
+            if (users.length === 0) {
+                usersList.innerHTML = "<li>Пользователей нет</li>";
+                return;
+            }
+            users.forEach(u => {
+                const li = document.createElement("li");
+                li.textContent = `ID: ${u.id}, Name: ${u.name}, Email: ${u.email}`;
+                usersList.appendChild(li);
+            });
+        } catch (error) {
+            usersList.innerHTML = `<li>Сетевая ошибка: ${error}</li>`;
+        }
+    }
+
+    // Отправка письма multipart/form-data
+    async function sendBulkEmail() {
+        const resultElem = document.getElementById("bulkEmailResult");
+        resultElem.textContent = "";
+
+        // Формируем FormData из нашей формы:
+        const form = document.getElementById("emailForm");
+        const formData = new FormData(form);
+
+        try {
+            const res = await fetch(`${BASE_URL}/admin/send-email`, {
+                method: "POST",
+                body: formData
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                resultElem.textContent = "Ошибка: " + errText;
+                return;
+            }
+            const data = await res.json();
+            resultElem.textContent = data.message;
+        } catch (error) {
+            resultElem.textContent = "Сетевая ошибка: " + error;
+        }
+    }
+</script>
+
+</body>
+</html>

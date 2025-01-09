@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catalog - PeriFy</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/catalog.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <div class="logo"><a href="index.html">PeriFy</a></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="cart.html">Cart</a>
+    </nav>
+  </div>
+</header>
+
+<main class="catalog">
+  <aside class="filters">
+    <h2>Filters</h2>
+    <div class="filter-group">
+      <label for="category-filter">Category:</label>
+      <select id="category-filter">
+        <option value="">All</option>
+        <option value="Keyboards">Keyboards</option>
+        <option value="Mice">Mice</option>
+        <option value="Monitors">Monitors</option>
+        <option value="Headphones">Headphones</option>
+      </select>
+    </div>
+
+
+    <div class="filter-group">
+      <label for="price-range">Price Range:</label>
+      <select id="price-range">
+        <option value="">All</option>
+        <option value="0-50">$0 - $50</option>
+        <option value="50-100">$50 - $100</option>
+        <option value="100-200">$100 - $200</option>
+        <option value="200-500">$200 - $500</option>
+      </select>
+    </div>
+
+  </aside>
+
+  <section class="product-list">
+    <div class="sort-container">
+      <label for="sort-dropdown">Sort By:</label>
+      <select id="sort-dropdown">
+        <option value="">Default</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+      </select>
+    </div>
+
+    <div class="products-container">
+      <!-- Products will be dynamically loaded here -->
+    </div>
+
+    <div class="pagination-container"></div>
+
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2025 PeriFy. All Rights Reserved.</p>
+  </div>
+</footer>
+<script src="js/catalog.js"></script>
+</body>
+</html>
